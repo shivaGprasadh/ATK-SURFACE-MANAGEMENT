@@ -256,7 +256,10 @@ def delete_scan(scan_id):
     scan = Scan.query.get_or_404(scan_id)
 
     try:
-        # Delete the scan (cascade will handle related records)
+        # First, delete any related entries in the cors_scans table
+        db.session.execute(text('DELETE FROM cors_scans WHERE scan_id = :scan_id'), {'scan_id': scan_id})
+        
+        # Now delete the scan itself
         db.session.delete(scan)
         db.session.commit()
         flash('Scan deleted successfully', 'success')
